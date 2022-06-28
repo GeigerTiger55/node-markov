@@ -1,9 +1,11 @@
+"use strict";
+
 /** Textual markov chain generator. */
 
 const argv = process.argv;
 const fsP = require('fs/promises');
 
-async function readMyFile(path){
+async function readMyFile(path) {
   let contents;
   try {
     contents = await fsP.readFile(path, 'utf8');
@@ -40,7 +42,7 @@ class MarkovMachine {
    * */
 
   getChains() {
-    // TODO: implement this!
+
     let wordChains = {};
 
     for (let i = 0; i < this.words.length; i++) {
@@ -52,7 +54,6 @@ class MarkovMachine {
       }
       wordChains[this.words[i]] = listOfNextWords;
     }
-    console.log(wordChains, "wordchains");
     return wordChains;
   }
 
@@ -60,16 +61,11 @@ class MarkovMachine {
    *  until it hits a null choice. */
 
   getText() {
-    // TODO: implement this!
 
-    // - start at the first word in the input text
     let textArrangement = [this.words[0]];
     let i = 0;
-    // - find a random word from the following-words of that
+
     do {
-      console.log(i, "i");
-      //check if any other options besides null
-      //if null only option, then break
       let numberOfChoices;
       if (this.chains[`${textArrangement[i]}`]) {
         numberOfChoices = this.chains[`${textArrangement[i]}`].length;
@@ -79,21 +75,24 @@ class MarkovMachine {
 
       let randomWordSelection = Math.floor(Math.random() * numberOfChoices);
       let nextWord = this.chains[textArrangement[i]][randomWordSelection];
-      //check if random word selected if word or if null
+
       if (nextWord) {
         textArrangement.push(nextWord);
         i++;
       } else {
         break;
       }
-      console.log(textArrangement[i - 1], "text arr i-1");
-    } while (true); //TODO: update to check if null
-    // - repeat until reaching the terminal null
-    console.log(textArrangement.join(" "), "text story");
+    } while (true);
+
     return textArrangement.join(" ");
   }
 }
 
-const text = readMyFile(argv[2]);
-const markovMachine = new MarkovMachine(text);
-console.log(markovMachine.getText());
+async function runMe() {
+  const text = await readMyFile(argv[2]);
+  const markovMachine = new MarkovMachine(text);
+  console.log(markovMachine.getText());
+}
+
+runMe();
+
