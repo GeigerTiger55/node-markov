@@ -5,6 +5,7 @@
 const argv = process.argv;
 const fsP = require('fs/promises');
 
+/** Function to read file and return text of file */
 async function readMyFile(path) {
   let contents;
   try {
@@ -38,15 +39,15 @@ class MarkovMachine {
    *   "the": ["hat."],
    *   "hat.": [null],
    *  }
-   *
+   * //TODO: Update to be actual MAP vs object we tried to change into a map
    * */
 
   getChains() {
 
-    let wordChains = {};
+    const wordChains = new Map();
 
     for (let i = 0; i < this.words.length; i++) {
-      let listOfNextWords = wordChains[this.words[i]] || [];
+      const listOfNextWords = wordChains[this.words[i]] || [];
       if (this.words[i + 1]) {
         listOfNextWords.push(this.words[i + 1]);
       } else {
@@ -58,23 +59,24 @@ class MarkovMachine {
   }
 
   /** Return random text from chains, starting at the first word and continuing
-   *  until it hits a null choice. */
+   *  until it hits a null choice. 
+   * */
 
   getText() {
-
-    let textArrangement = [this.words[0]];
+    const firstWord = this.words[0];
+    const textArrangement = [firstWord];
     let i = 0;
 
     do {
       let numberOfChoices;
-      if (this.chains[`${textArrangement[i]}`]) {
-        numberOfChoices = this.chains[`${textArrangement[i]}`].length;
+      if (this.chains[textArrangement[i]]) {
+        numberOfChoices = this.chains[textArrangement[i]].length;
       } else {
         break;
       }
 
-      let randomWordSelection = Math.floor(Math.random() * numberOfChoices);
-      let nextWord = this.chains[textArrangement[i]][randomWordSelection];
+      const randomIndex = Math.floor(Math.random() * numberOfChoices);
+      const nextWord = this.chains[textArrangement[i]][randomIndex];
 
       if (nextWord) {
         textArrangement.push(nextWord);
@@ -88,6 +90,9 @@ class MarkovMachine {
   }
 }
 
+/** Async function to call readMyFile and then create the Markov Machine 
+ * and generate the fun text!*/
+
 async function runMe() {
   const text = await readMyFile(argv[2]);
   const markovMachine = new MarkovMachine(text);
@@ -96,3 +101,4 @@ async function runMe() {
 
 runMe();
 
+module.exports = { MarkovMachine };
